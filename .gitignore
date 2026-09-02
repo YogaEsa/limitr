@@ -1,0 +1,54 @@
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# Swift / Xcode build products
+.build/
+.swiftpm/
+Packages/
+DerivedData/
+build/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcuserstate
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+*.xcarchive/
+
+# Packaged app output
+dist/
+
+# Credentials and local provider state — never commit
+*.pem
+*.p12
+*.p8
+*.mobileprovision
+.credentials.json
+auth.json
+.claude.json
+.codex/
+.claude/
+.limitr/
+.env
+.env.*
+!.env.example
+
+# Local development and packaging scripts — not part of the shipped source
+Scripts/
+
+# Local editor settings and agent working notes
+.idea/
+.vscode/
+AGENTS.md
+CLAUDE.md
+docs/superpowers/
+*.swp
+*~
+
+#other
+Scripts/
