@@ -107,6 +107,22 @@ xcrun notarytool submit dist/Limitr.zip --keychain-profile "limitr" --wait
 xcrun stapler staple dist/Limitr.app
 ```
 
+### Releasing a new version (maintainers)
+
+`Scripts/` is gitignored (see [Project layout](#project-layout)), so `Scripts/release.sh` lives
+only in a maintainer's local checkout — it is not something a fresh clone has. If you have it:
+
+```sh
+./Scripts/release.sh
+```
+
+This builds `dist/Limitr.app`, zips it to `dist/Limitr.app.zip`, and prints its `sha256`. Then:
+
+1. Bump `CFBundleShortVersionString` in `Resources/Info.plist` to the new version.
+2. Tag the commit: `git tag -a vX.Y.Z -m "vX.Y.Z"` and `git push origin vX.Y.Z`.
+3. Create a GitHub Release from that tag and upload `dist/Limitr.app.zip`.
+4. Update `version` and `sha256` in `Casks/limitr.rb` to match, commit, and push to `main`.
+
 ## Connect your accounts
 
 1. Click the Limitr icon in the menu bar.
