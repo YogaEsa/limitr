@@ -1,6 +1,6 @@
 cask "limitr" do
-  version "0.0.0" # TODO: set to the tag of the first GitHub Release, e.g. "1.0.0"
-  sha256 "0000000000000000000000000000000000000000000000000000000000000000" # TODO: from `Scripts/release.sh` output
+  version "1.0.1"
+  sha256 "4d833a9b2b410a0553bc3c03a79a93cc853af6013d3c274f144c273984bfcadd"
 
   url "https://github.com/YogaEsa/limitr/releases/download/v#{version}/Limitr.app.zip"
   name "Limitr"
