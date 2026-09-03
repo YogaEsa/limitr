@@ -20,6 +20,16 @@ Limitr is a native, privacy-first macOS menu-bar app for people who use Claude C
 
 > Requires macOS 14 Sonoma or newer.
 
+## Install via Homebrew
+
+```sh
+brew tap yogaesa/limitr https://github.com/YogaEsa/limitr
+brew install --cask limitr
+```
+
+Limitr is ad-hoc signed (no Apple Developer ID yet). If macOS blocks the first launch as
+unidentified, run `xattr -cr /Applications/Limitr.app`.
+
 ## Requirements
 
 Limitr is a Swift package, so the Swift 6 toolchain that ships with Xcode 16 is all you need.
