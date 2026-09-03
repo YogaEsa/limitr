@@ -20,19 +20,10 @@ Limitr is a native, privacy-first macOS menu-bar app for people who use Claude C
 
 > Requires macOS 14 Sonoma or newer.
 
-## Install via Homebrew
-
-```sh
-brew tap yogaesa/limitr https://github.com/YogaEsa/limitr
-brew install --cask limitr
-```
-
-Limitr is ad-hoc signed (no Apple Developer ID yet). If macOS blocks the first launch as
-unidentified, run `xattr -cr /Applications/Limitr.app`.
-
 ## Requirements
 
-Limitr is a Swift package, so the Swift 6 toolchain that ships with Xcode 16 is all you need.
+Limitr is a pure Swift package (no `.xcodeproj`), so the free **Command Line Tools** are enough —
+you do not need to install the full Xcode.app from the App Store.
 
 ```sh
 xcode-select --install     # Command Line Tools, if you have never installed them
@@ -59,7 +50,8 @@ swift run limitr --claude   # Codex and Claude Code usage
 
 ### Build the menu-bar app
 
-The app needs a real `.app` bundle — `swift run LimitrApp` will not work, because macOS refuses to grant notification permission to a process that has no bundle. Run the block below from the repository root to compile a universal release binary and wrap it:
+`swift run LimitrApp` will not work — macOS refuses notification permission to a process with
+no `.app` bundle. Build and wrap one instead:
 
 ```sh
 swift build -c release --product LimitrApp --arch arm64 --arch x86_64
@@ -88,29 +80,14 @@ codesign --force --sign - "$APP"
 open "$APP"
 ```
 
-That signature is ad-hoc, which is fine for a build you run yourself but not for one you hand to anyone else.
-
-The first launch asks macOS for notification permission, then Limitr appears in the menu bar. Move `dist/Limitr.app` to `/Applications` if you want to keep it.
-
-### Sign and notarize a distributable build
-
-Replace the `codesign` line above with a Developer ID identity, then notarize and staple:
-
-```sh
-xcrun notarytool store-credentials "limitr" --apple-id "you@example.com" --team-id "TEAMID"
-
-codesign --force --options runtime --timestamp \
-  --sign "Developer ID Application: Your Name (TEAMID)" dist/Limitr.app
-
-ditto -c -k --keepParent dist/Limitr.app dist/Limitr.zip
-xcrun notarytool submit dist/Limitr.zip --keychain-profile "limitr" --wait
-xcrun stapler staple dist/Limitr.app
-```
+This signs ad-hoc — fine to run yourself, not for handing to anyone else. First launch asks for
+notification permission, then Limitr shows up in the menu bar. Move `dist/Limitr.app` to
+`/Applications` to keep it.
 
 ### Releasing a new version (maintainers)
 
-`Scripts/` is gitignored (see [Project layout](#project-layout)), so `Scripts/release.sh` lives
-only in a maintainer's local checkout — it is not something a fresh clone has. If you have it:
+`Scripts/` is gitignored, so `Scripts/release.sh` only exists in a maintainer's local checkout.
+If you have it:
 
 ```sh
 ./Scripts/release.sh
@@ -122,6 +99,8 @@ This builds `dist/Limitr.app`, zips it to `dist/Limitr.app.zip`, and prints its 
 2. Tag the commit: `git tag -a vX.Y.Z -m "vX.Y.Z"` and `git push origin vX.Y.Z`.
 3. Create a GitHub Release from that tag and upload `dist/Limitr.app.zip`.
 4. Update `version` and `sha256` in `Casks/limitr.rb` to match, commit, and push to `main`.
+5. Once that release exists, add a "Install via Homebrew" section back to this README
+   (`brew tap yogaesa/limitr https://github.com/YogaEsa/limitr && brew install --cask limitr`).
 
 ## Connect your accounts
 
