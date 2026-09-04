@@ -45,8 +45,8 @@ swift --version            # Expect 6.0 or newer
 Clone the repository and check that the toolchain is happy:
 
 ```sh
-git clone https://github.com/<your-github-username>/Limitr.git
-cd Limitr
+git clone https://github.com/YogaEsa/limitr.git
+cd limitr
 swift build
 swift test
 ```
@@ -61,54 +61,15 @@ swift run limitr --claude   # Codex and Claude Code usage
 ### Build the menu-bar app
 
 `swift run LimitrApp` will not work — macOS refuses notification permission to a process with
-no `.app` bundle. Build and wrap one instead:
+no `.app` bundle. Build and wrap one with the build script:
 
 ```sh
-swift build -c release --product LimitrApp --arch arm64 --arch x86_64
-BIN="$(swift build -c release --product LimitrApp --arch arm64 --arch x86_64 --show-bin-path)"
-
-APP="dist/Limitr.app"
-rm -rf "$APP"
-mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
-cp "$BIN/LimitrApp" "$APP/Contents/MacOS/LimitrApp"
-cp Resources/Info.plist "$APP/Contents/Info.plist"
-cp Resources/Assets/claudeicon.svg Resources/Assets/gpticon.svg "$APP/Contents/Resources/"
-
-ICONSET="$(mktemp -d)/Limitr.iconset"
-mkdir -p "$ICONSET"
-for size in 16 32 64 128 256 512 1024; do
-  sips -z "$size" "$size" Resources/Assets/limitr.png --out "$ICONSET/icon_${size}x${size}.png" >/dev/null
-done
-cp "$ICONSET/icon_32x32.png"     "$ICONSET/icon_16x16@2x.png"
-cp "$ICONSET/icon_64x64.png"     "$ICONSET/icon_32x32@2x.png"
-cp "$ICONSET/icon_256x256.png"   "$ICONSET/icon_128x128@2x.png"
-cp "$ICONSET/icon_512x512.png"   "$ICONSET/icon_256x256@2x.png"
-cp "$ICONSET/icon_1024x1024.png" "$ICONSET/icon_512x512@2x.png"
-iconutil -c icns "$ICONSET" -o "$APP/Contents/Resources/Limitr.icns"
-
-codesign --force --sign - "$APP"
-open "$APP"
+./Scripts/build-app.sh
 ```
 
-This signs ad-hoc — fine to run yourself, not for handing to anyone else. First launch asks for
-notification permission, then Limitr shows up in the menu bar. Move `dist/Limitr.app` to
-`/Applications` to keep it.
-
-### Releasing a new version (maintainers)
-
-`Scripts/` is gitignored, so `Scripts/release.sh` only exists in a maintainer's local checkout.
-If you have it:
-
-```sh
-./Scripts/release.sh
-```
-
-This builds `dist/Limitr.app`, zips it to `dist/Limitr.app.zip`, and prints its `sha256`. Then:
-
-1. Bump `CFBundleShortVersionString` in `Resources/Info.plist` to the new version.
-2. Tag the commit: `git tag -a vX.Y.Z -m "vX.Y.Z"` and `git push origin vX.Y.Z`.
-3. Create a GitHub Release from that tag and upload `dist/Limitr.app.zip`.
-4. Update `version` and `sha256` in `Casks/limitr.rb` to match, commit, and push to `main`.
+This compiles a universal release binary, wraps it into `dist/Limitr.app`, generates the app
+icon, and signs it ad-hoc. First launch asks for notification permission, then Limitr shows up
+in the menu bar. Move `dist/Limitr.app` to `/Applications` to keep it.
 
 ## Connect your accounts
 
@@ -120,6 +81,14 @@ This builds `dist/Limitr.app`, zips it to `dist/Limitr.app.zip`, and prints its 
 For Claude, sign in first with `claude login`. For Codex, sign in with `codex login`. Limitr uses those existing local sessions; it never asks you to paste an API key.
 
 Codex usage is marked stale after 30 minutes without a new rate-limit event. Claude polling follows its minimum interval and backs off automatically after a rate-limit response.
+
+### YOLO mode
+
+The lightning-bolt button on an account row opens that CLI with its own safety prompts turned
+off — `claude --dangerously-skip-permissions` or `codex --dangerously-bypass-approvals-and-sandbox`.
+The agent then edits files and runs commands without asking you first. Limitr asks for
+confirmation before opening one, but the risk after that is the CLI's, not Limitr's: use it only
+in a directory you are willing to let an agent change unattended.
 
 ## Privacy
 
@@ -141,3 +110,11 @@ Run a single test with `swift test --filter <TestClass>/<testMethod>`, for examp
 ```sh
 swift test --filter CodexProviderTests/testMarksOldEventsStale
 ```
+
+## License
+
+[MIT](LICENSE) — do what you like with it, keep the copyright notice, no warranty.
+
+Limitr is not affiliated with, endorsed by, or sponsored by Anthropic or OpenAI. "Claude" and
+"Codex" are the trademarks of their respective owners, and the product marks in
+`Resources/Assets/` are used only to identify which service a reading belongs to.

@@ -38,8 +38,11 @@ auth.json
 .env.*
 !.env.example
 
-# Local development and packaging scripts — not part of the shipped source
-Scripts/
+# Local development and packaging scripts — not part of the shipped source,
+# except build-app.sh (forks/clones need it to build the app) and release.sh
+# (the maintainer's cut-a-release helper)
+Scripts/*
+!Scripts/build-app.sh
 
 # Local editor settings and agent working notes
 .idea/
@@ -49,6 +52,3 @@ CLAUDE.md
 docs/superpowers/
 *.swp
 *~
-
-#other
-Scripts/
